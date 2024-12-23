@@ -10,9 +10,9 @@ const transporterRoutes = require("./routes/transporter");
 const driverRoutes = require("./routes/driver");
 const jobRoutes = require("./routes/job");
 
-app.use("/api/transporter", transporterRoutes);
-app.use("/api/driver", driverRoutes);
-app.use("/api/job", jobRoutes);
+app.use("/api/v1/transporter", transporterRoutes);
+app.use("/api/v1/driver", driverRoutes);
+app.use("/api/v1/job", jobRoutes);
 
 const PORT = 8000;
 app.listen(PORT, () => {
