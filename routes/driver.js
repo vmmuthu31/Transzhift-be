@@ -45,4 +45,36 @@ router.post(
   }
 );
 
+router.post("/verify-driver/:id", async (req, res) => {
+  try {
+    const driver = await Driver.findById(req.params.id);
+    if (!driver) return res.status(404).json({ error: "Driver not found" });
+
+    driver.status = "Verified";
+    await driver.save();
+    res.status(200).json({ message: "Driver verified successfully", driver });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred during verification" });
+  }
+});
+
+router.post("/activate-driver/:id", async (req, res) => {
+  try {
+    const driver = await Driver.findById(req.params.id);
+    if (!driver) return res.status(404).json({ error: "Driver not found" });
+
+    if (driver.status !== "Verified") {
+      return res.status(400).json({ error: "Driver must be verified first" });
+    }
+
+    driver.status = "Active";
+    await driver.save();
+    res.status(200).json({ message: "Driver profile activated", driver });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred during activation" });
+  }
+});
+
 module.exports = router;

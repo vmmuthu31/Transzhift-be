@@ -28,6 +28,11 @@ const driverSchema = new mongoose.Schema({
     policeVerification: { type: String, required: true },
     medicalFitnessCertificate: { type: String, required: true },
   },
+  status: {
+    type: String,
+    enum: ["Pending", "Verified", "Active"],
+    default: "Pending",
+  },
 });
 
 const Driver = mongoose.model("Driver", driverSchema);
