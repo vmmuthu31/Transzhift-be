@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const transporterSchema = new mongoose.Schema({
   companyInfo: {
     companyName: { type: String, required: true },
+    companyEmail: { type: String, required: true },
+    companyPhone: { type: String, required: true },
     registrationDetails: { type: String, required: true },
     gstNumber: { type: String, required: true, unique: true },
     officeLocations: { type: [String], required: true },

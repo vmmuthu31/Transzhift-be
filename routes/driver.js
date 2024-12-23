@@ -3,6 +3,8 @@ const { storage } = require("../utils/utils");
 const upload = multer({ storage });
 const Driver = require("../models/driver");
 const express = require("express");
+const Job = require("../models/job");
+const { sendEmail } = require("../services/emailService");
 const router = express.Router();
 
 router.post(
@@ -46,6 +48,40 @@ router.post(
   }
 );
 
+router.get("/driver-applications/:driverId", async (req, res) => {
+  try {
+    const driver = await Driver.findById(req.params.driverId).populate(
+      "applications"
+    );
+    if (!driver) {
+      return res.status(404).json({ error: "Driver not found" });
+    }
+
+    res.status(200).json({ applications: driver.applications });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching applications" });
+  }
+});
+
+router.post("/request-verification/:id", async (req, res) => {
+  try {
+    const driver = await Driver.findById(req.params.id);
+    if (!driver) return res.status(404).json({ error: "Driver not found" });
+
+    driver.status = "Pending Verification";
+    await driver.save();
+    res.status(200).json({ message: "Verification request initiated", driver });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred during the verification request" });
+  }
+});
+
 router.post("/verify-driver/:id", async (req, res) => {
   try {
     const driver = await Driver.findById(req.params.id);
@@ -75,6 +111,41 @@ router.post("/activate-driver/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "An error occurred during activation" });
+  }
+});
+
+router.post("/notify-driver/:driverId/:jobId", async (req, res) => {
+  try {
+    const driver = await Driver.findById(req.params.driverId);
+    const job = await Job.findById(req.params.jobId);
+
+    if (!driver || !job) {
+      return res.status(404).json({ error: "Driver or Job not found" });
+    }
+
+    const driverEmail = driver.basicInfo.contactNumber;
+    const emailSubject = `New Job Opportunity: ${job.jobType}`;
+    const emailText = `Hello ${driver.basicInfo.name},
+
+A new job matching your profile has been posted:
+
+Job Type: ${job.jobType}
+Location: ${job.location}
+Salary: ₹${job.salary}
+
+Please log in to the platform to view and apply.
+
+Best regards,
+TranzShift Team`;
+
+    await sendEmail(driverEmail, emailSubject, emailText);
+
+    res
+      .status(200)
+      .json({ message: `Notification email sent to ${driver.basicInfo.name}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred during notification" });
   }
 });
 
