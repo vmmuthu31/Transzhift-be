@@ -1,6 +1,7 @@
+const multer = require("multer");
+const { storage } = require("../utils/utils");
 const upload = multer({ storage });
 const Driver = require("../models/driver");
-const { storage } = require("../utils/utils");
 const express = require("express");
 const router = express.Router();
 
