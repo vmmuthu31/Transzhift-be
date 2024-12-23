@@ -1,12 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
-
+require("dotenv").config();
 const app = express();
 app.use(express.json());
 
-mongoose.connect(
-  "mongodb+srv://starknethh:starknethh@cluster0.4q4ho.mongodb.net/Transzhift"
-);
+mongoose.connect(process.env.MONGO_URI);
 
 const transporterRoutes = require("./routes/transporter");
 const driverRoutes = require("./routes/driver");
